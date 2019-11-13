@@ -1,35 +1,32 @@
 import gym
 from gym import spaces
 import numpy as np
-from gym_game.envs.pygame import PyGame
+from gym_game.envs.game import Game
 
-class GameEnv(gym.Env):
+class Env(gym.Env):
     metadata = {'render.modes' : ['human']}
     def __init__(self):
-        print("init")
+        # modify here!!!
         self.action_space = spaces.Discrete(16)
-        #self.observation_space = spaces.Box(low=0, high=255, shape=(16, 16), dtype=np.int)
         self.observation_space = spaces.Box(np.array([0, 0]), np.array([15, 1]), dtype=np.int)
-        self.pygame = PyGame()
+        self.game = Game()
         self.memory = []
 
     def reset(self):
-        del self.pygame
-        pyautogui.mouseDown(500, 150)
-        pyautogui.mouseUp()
-        pyautogui.press('space')
-        self.pygame = PyGame()
-        obs = self.pygame.observe()
+        del self.game
+        self.game = Game()
+        obs = self.game.observe()
         return obs
 
     def step(self, action):
-        self.pygame.action(action)
-        reward = self.pygame.evaluate()
-        done = self.pygame.is_done()
-        obs = self.pygame.observe()
+        self.game.action(action)
+        reward = self.game.evaluate()
+        done = self.game.is_done()
+        obs = self.game.observe()
         return obs, reward, done, {}
 
     def render(self, mode="human", close=False):
+        self.game.view()
         pass
 
     def save_memory(self, file):

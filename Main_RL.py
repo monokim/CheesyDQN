@@ -7,6 +7,19 @@ import matplotlib.pyplot as plt
 import gym
 import gym_game
 
+def show_plot(total_rewards):
+    plt.plot(total_rewards)
+    plt.xlabel('episode')
+    plt.ylabel('reward')
+    plt.show()
+
+def load_data(file):
+    np_load_old = np.load
+    np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
+    data = np.load(file)
+    np.load = np_load_old
+    return data
+
 def simulate():
     learning_rate =  get_learning_rate(0)
     explore_rate = get_explore_rate(0)
@@ -19,16 +32,14 @@ def simulate():
 
         total_rewards.append(total_reward)
         if episode == 1000:
-            plt.plot(total_rewards)
-            plt.ylabel('rewards')
-            plt.show()
-            env.save_memory('30000')
-            break
+            show_plot(total_reward)
+            env.save_memory('1000')
 
         obv = env.reset()
         state_0 = state_to_bucket(obv)
         total_reward = 0
 
+        # ???
         if episode >= threshold:
             explore_rate = 0.01
 
@@ -50,64 +61,10 @@ def simulate():
                 print("Episode %d finished after %i time steps with total reward = %f."
                       % (episode, t, total_reward))
                 break
+
         # Update parameters
         explore_rate = get_explore_rate(episode)
         learning_rate = get_learning_rate(episode)
-
-def load_and_play():
-    print("Start loading history")
-    history_list = ['30000.npy']
-
-    # load data from history file
-    print("Start updating q_table")
-    discount_factor = 0.99
-    for list in history_list:
-        history = load_data(list)
-        learning_rate = get_learning_rate(0)
-        print(list)
-        file_size = len(history)
-        print("file size : " + str(file_size))
-        i = 0
-        for data in history:
-            state_0, action, reward, state, done = data
-            best_q = np.amax(q_table[state])
-            q_table[state_0 + (action,)] += learning_rate * (reward + discount_factor * (best_q) - q_table[state_0 + (action,)])
-            if done == True:
-                i += 1
-                learning_rate = get_learning_rate(i)
-
-    print("Updating q_table is complete")
-
-
-    # play game
-    env.set_view(False)
-    reward_count = 0
-    for episode in range(NUM_EPISODES):
-        obv = env.reset()
-        state_0 = state_to_bucket(obv)
-        total_reward = 0
-        for t in range(MAX_T):
-            action = select_action(state_0, 0.01)
-            obv, reward, done, _ = env.step(action)
-            state = state_to_bucket(obv)
-            total_reward += reward
-            best_q = np.amax(q_table[state])
-            q_table[state_0 + (action,)] += learning_rate * (reward + discount_factor * (best_q) - q_table[state_0 + (action,)])
-            state_0 = state
-            env.render()
-            if done or t >= MAX_T - 1:
-                print("Episode %d finished after %i time steps with total reward = %f."
-                      % (episode, t, total_reward))
-                break
-        if total_reward >= 1000:
-            reward_count += 1
-        else:
-            reward_count = 0
-
-        if reward_count >= 10:
-            env.set_view(True)
-
-        learning_rate = get_learning_rate(i + episode)
 
 def select_action(state, explore_rate):
     if random.random() < explore_rate:
@@ -138,15 +95,8 @@ def state_to_bucket(state):
         bucket_indice.append(bucket_index)
     return tuple(bucket_indice)
 
-def load_data(file):
-    np_load_old = np.load
-    np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
-    data = np.load(file)
-    np.load = np_load_old
-    return data
-
 if __name__ == "__main__":
-    env = gym.make("Pygame-v0")
+    env = gym.make("Game-v0")
     NUM_BUCKETS = tuple((env.observation_space.high + np.ones(env.observation_space.shape)).astype(int))
     NUM_ACTIONS = env.action_space.n
     STATE_BOUNDS = list(zip(env.observation_space.low, env.observation_space.high))
@@ -155,10 +105,8 @@ if __name__ == "__main__":
     MIN_LEARNING_RATE = 0.2
     DECAY_FACTOR = np.prod(NUM_BUCKETS, dtype=float) / 10.0
 
-    NUM_EPISODES = 9999999
-    MAX_T = 2000
-    #MAX_T = np.prod(NUM_BUCKETS, dtype=int) * 100
+    NUM_EPISODES = 99999
+    MAX_T = 2000 #np.prod(NUM_BUCKETS, dtype=int) * 100
     q_table = np.zeros(NUM_BUCKETS + (NUM_ACTIONS,), dtype=float)
 
     simulate()
-    #load_and_play()
