@@ -90,7 +90,6 @@ if __name__ == "__main__":
     env = gym.make("Game-v0")
     init_screen = util.get_screen()
     _, _, height, width = init_screen.shape
-    print(init_screen.shape)
 
     n_actions = env.action_space.n
 
