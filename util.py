@@ -13,9 +13,15 @@ def get_screen(screen, size=(96, 96)):
     image = torch.from_numpy(image).unsqueeze(0).unsqueeze(0)
     return image
 
-def click_point(x, y):
-    pyautogui.mouseDown(x, y)
-    pyautogui.mouseUp()
+def get_screen_rect(caption='Minecraft 1.11.2'):
+    hwnd = win32gui.FindWindow(None, caption)
+    rect = win32gui.GetWindowRect(hwnd)
+    return rect
+
+def click_point(pos=None):
+    pyautogui.click(pos)
+    #pyautogui.mouseDown(x, y)
+    #pyautogui.mouseUp()
 
 def press_key(key):
     pyautogui.keyDown(key)
