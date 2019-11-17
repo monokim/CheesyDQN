@@ -6,8 +6,10 @@ from gym_game.envs.game import Game
 class Env(gym.Env):
     metadata = {'render.modes' : ['human']}
     def __init__(self):
+        ###############################################
         # modify here!!!
         self.action_space = spaces.Discrete(16)
+        ###############################################
         self.observation_space = spaces.Box(np.array([0, 0]), np.array([15, 1]), dtype=np.int)
         self.game = Game()
         self.memory = []

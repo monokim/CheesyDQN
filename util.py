@@ -4,8 +4,8 @@ import numpy as np
 import time
 import torch
 
-def get_screen(x = 0, y = 0, w = 1920, h = 1080, size=(96, 96)):
-    image = pyautogui.screenshot(region=(x, y, w, h))
+def get_screen(screen, size=(96, 96)):
+    image = pyautogui.screenshot(region=screen)
     image = np.array(image)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     image = cv2.resize(image, size)

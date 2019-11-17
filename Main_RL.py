@@ -15,15 +15,15 @@ def simulate():
     num_episodes = 100
     for epi in range(num_episodes):
         env.reset()
-        last_screen = util.get_screen()
-        current_screen = util.get_screen()
+        last_screen = util.get_screen(screen)
+        current_screen = util.get_screen(screen)
         state = current_screen - last_screen
         for t in range(MAX_T):
             action = select_action(state)
             _, reward, done, _ = env.step(action.item())
 
             last_screen = current_screen
-            current_screen = util.get_screen()
+            current_screen = util.get_screen(screen)
             if done:
                 next_state = None
             else:
@@ -87,8 +87,13 @@ if __name__ == "__main__":
     MAX_T = 9999
     steps_done = 0
 
+    ###############################################
+    # modify here!!
+    screen = (x, y, w, h)
+    ###############################################
+
     env = gym.make("Game-v0")
-    init_screen = util.get_screen()
+    init_screen = util.get_screen(screen)
     _, _, height, width = init_screen.shape
 
     n_actions = env.action_space.n
