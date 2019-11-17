@@ -1,6 +1,9 @@
 from collections import namedtuple
-from torch import nn, F
+import torch
+import torch.nn as nn
 import random
+import torch.nn.functional as F
+
 
 Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
 
