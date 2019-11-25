@@ -9,7 +9,7 @@ import gym
 import gym_game
 import torch
 
-from dqn import DQN, ReplayMemory
+from dqn import DQN, ReplayMemory, Transition
 
 def simulate():
     num_episodes = 100
@@ -44,7 +44,7 @@ def optimize_model():
     if len(memory) < BATCH_SIZE:
         return
     transition = memory.sample(BATCH_SIZE)
-    batch = transition(*zip(*transition))
+    batch = Transition(*zip(*transition))
     non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=device, dtype=torch.uint8)
     non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
     state_batch = torch.cat(batch.state)
