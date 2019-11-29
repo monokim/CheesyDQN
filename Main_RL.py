@@ -21,6 +21,7 @@ def simulate():
         for t in range(MAX_T):
             action = select_action(state)
             _, reward, done, _ = env.step(action.item())
+            reward = torch.tensor([reward], device = device)
 
             last_screen = current_screen
             current_screen = util.get_screen(screen)
@@ -74,7 +75,7 @@ def select_action(state):
         with torch.no_grad():
             return policy_net(state).max(1)[1].view(1, 1)
     else:
-        return torch.tensor([[random.randrange(n_actions)]], dtype=torch.long)
+        return torch.tensor([[random.randrange(n_actions)]], device=device, dtype=torch.long)
 
 
 if __name__ == "__main__":
@@ -98,8 +99,9 @@ if __name__ == "__main__":
 
     n_actions = env.action_space.n
 
-    policy_net = DQN(width, height, n_actions)
-    target_net = DQN(width, height, n_actions)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    policy_net = DQN(width, height, n_actions).to(device)
+    target_net = DQN(width, height, n_actions).to(device)
     target_net.load_state_dict(policy_net.state_dict())
     target_net.eval()
 
