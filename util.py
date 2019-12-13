@@ -27,3 +27,14 @@ def press_key(key):
     pyautogui.keyDown(key)
     time.sleep(0.1)
     pyautogui.keyUp(key)
+
+class Timer():
+    def __init__(self):
+        self.prev_time = 0
+
+    def set_start():
+        self.prev_time = time.time()
+
+    def get_excution_time():
+        ex_time = time.time() - self.prev_time
+        return ex_time
